@@ -1,11 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
+import { addUser } from '../../redux/reducers/authReducer';
 
 class Auth extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: '',
+            email: '',
             password: '',
             error: ''
         }
@@ -14,7 +16,16 @@ class Auth extends React.Component {
     handleInput = e => this.setState({ [e.target.name]: e.target.value })
 
     handleRegister = () => {
+        const { email, password } = this.state;
 
+        axios
+            .post('/auth/register', { email, password })
+            .then(res => {
+                this.props.addUser(res.data)
+            })
+            .catch(err => {
+                console.log(err)
+            })
     }
 
     handleLogin = () => {
@@ -30,11 +41,12 @@ class Auth extends React.Component {
         return (
             <section>
                 {
-                    this.props.user.name
+                    this.props.user.email
                     ? <button>logout</button>
                     : <div>
-                            <input placeholder='username' />
-                            <input placeholder='password' />
+                            <input onChange={this.handleInput} name='email' placeholder='email' />
+                            <input onChange={this.handleInput} name='password' placeholder='password' />
+                            <button onClick={this.handleRegister}>register</button>
                             <button>login</button>
                     </div>
                 }
@@ -49,4 +61,4 @@ const mapStateToProps = reduxState => {
     }
 }
 
-export default connect(mapStateToProps)(Auth);
+export default connect(mapStateToProps, { addUser })(Auth);
